@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>基础50题库｜50关麻将拆搭刷题</title>
+<title>基础题库｜麻将拆搭刷题</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
 body{background:#0e6b5c;padding:16px;color:#fff;max-width:480px;margin:0 auto;min-height:50vh}
@@ -117,7 +117,7 @@ body{background:#0e6b5c;padding:16px;color:#fff;max-width:480px;margin:0 auto;mi
     <div class="progress-top">第<span id="curLevel">1</span>关 / 共<span id="allLevel">50</span>关</div>
 </div>
 
- <div class="title-main">基础50题库</div>
+ <div class="title-main">基础<span id="allLevel1">50</span>题库</div>
 
  <h3  style="margin: 10px 0;">
     <span id="itemType"></span>
@@ -1975,7 +1975,8 @@ function renderPage(){
     const data = getLevelData(currentLv);
     if(!data) return
     document.getElementById("curLevel").innerText = currentLv;
-    document.getElementById("allLevel").innerText = fullQuestionLib.length;
+   document.getElementById("allLevel").innerText = fullQuestionLib.length;
+    document.getElementById("allLevel1").innerText = fullQuestionLib.length;
     // 渲染两行手牌
     const handWrap = document.getElementById("handWrap");
     handWrap.innerHTML = "";
