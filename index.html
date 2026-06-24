@@ -6,9 +6,9 @@
 <title>基础题库｜麻将拆搭刷题</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
-body{background:#0e6b5c;padding:16px;color:#fff;max-width:480px;margin:0 auto;min-height:50vh}
+body{background:#0e6b5c;padding:16px;color:#fff;max-width:540px;margin:0 auto;min-height:50vh}
 /* 顶部栏 */
-.top-bar{display:flex;align-items:center;justify-content:space-between;background:#075246;padding:10px 12px;border-radius:8px;margin-bottom:12px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:8px;margin-bottom:12px}
 .tag-box{display:flex;gap:8px}
 .tag{padding:6px 12px;border-radius:6px;font-size:15px;font-weight:bold}
 .tag.blue{background:#54a0ff;color:#fff}
@@ -17,7 +17,7 @@ body{background:#0e6b5c;padding:16px;color:#fff;max-width:480px;margin:0 auto;mi
 .title-main{text-align:center;font-size:24px;font-weight:bold;margin:10px 0}
 .progress-top{text-align:right;font-size:17px;opacity:0.9}
 /* 手牌区域 */
-.hand-row{display:flex;gap:5px;justify-content:center;margin-bottom:8px}
+.hand-row{display:flex;gap:5px 1px;flex-wrap: wrap;}
 .tile-hand{width:50px;height:66px;border-radius:6px}
 .tile-hand.wan{color:#c41e21}
 .tile-hand.tiao{color:#008a38}
@@ -112,17 +112,15 @@ body{background:#0e6b5c;padding:16px;color:#fff;max-width:480px;margin:0 auto;mi
 </head>
 <body>
 <!-- 顶部栏 -->
-<div class="top-bar">
-    <div class="title-main"></div>
-    <div class="progress-top">第<span id="curLevel">1</span>关 / 共<span id="allLevel">50</span>关</div>
-</div>
-
- <div class="title-main">基础<span id="allLevel1">50</span>题库</div>
-
- <h3  style="margin: 10px 0;">
-    <span id="itemType"></span>
+<div class="title-main">基础<span id="allLevel1">50</span>题库</div>
+<h3  style="margin-top: 10px;">
+    <div id="itemType"></div>
     难度系数是<span id="itemLevel" style="padding:0 4px;color: #f03838;font-size: 1.5em;"></span>颗星
- </h3>
+</h3>
+<div class="top-bar">
+    <div class=""></div>
+    <div class="progress-top">第<span id="curLevel">1</span>题 / 共<span id="allLevel">50</span>题</div>
+</div>
 
 <!-- 手牌渲染容器 -->
 <div id="handWrap"></div>
@@ -221,1707 +219,714 @@ let answered = false;
 // 初始化全局题库数组
 const fullQuestionLib = [
     {
-        index: 1,
-        level: 1,
-        type: "四人抬轿·无将一上听",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","五条","五条","五条","五筒","六筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"五条",colorType:"tiao"},
-            {label:"D",tile:"五筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"无将标准四人抬轿，3-9万七连顺多余9万，打9万保留23条、56筒双面搭，8门进张，拆搭会减少有效进张。"
-    },
-    {
-        index: 2,
-        level: 1,
-        type: "四人抬轿·带将一上听",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","八万"],
-            ["一条","二条","三条","八条","八条","七筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"八万",colorType:"wan"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"八条",colorType:"tiao"},
-            {label:"D",tile:"七筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"带将四人抬轿成型，1-6万完整六连顺，八万孤张无作用，八条固定做将，打八万保留全部优质搭子。"
-    },
-    {
-        index: 3,
-        level: 1,
-        type: "纯远端尾张孤张拆解",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","八万"],
-            ["二条","三条","四条","五条","六筒","七筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九筒",colorType:"tong"},
-            {label:"B",tile:"二万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"六筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"九筒是完全脱节尾张孤张，无任何搭子配合，全场价值最低，优先打掉不破坏任何连搭。"
-    },
-    {
-        index: 4,
-        level: 1,
-        type: "纯头部边张脱节孤张拆解",
-        handGroups: [
-            ["四万","五万","六万","七万","八万","九万","三万"],
-            ["三条","四条","五条","六条","七筒","八筒","一万"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"七筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"一万和3-9万全段万子完全断开，无改良、无进张，零基础废牌直接拆除。"
-    },
-    {
-        index: 5,
-        level: 1,
-        type: "大肚子五连搭基础拆孤",
-        handGroups: [
-            ["二万","三万","五万","六万","七万","八万","九万"],
-            ["二条","四条","五条","六条","七条","三筒","四筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"三筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"24567条标准大肚子复式搭，二条单独隔开整套条子，打掉二条打通1-7条大范围进张。"
-    },
-    {
-        index: 6,
-        level: 1,
-        type: "边搭vs中张嵌搭价值取舍",
-        handGroups: [
-            ["一万","二万","四万","五万","六万","七万","八万"],
-            ["三条","四条","六条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"三条",colorType:"tiao"},
-            {label:"C",tile:"八万",colorType:"wan"},
-            {label:"D",tile:"八筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"12万仅能进3万的低效边搭，4-8万中张五连搭改良空间极大，优先舍弃边搭一万。"
-    },
-    {
-        index: 7,
-        level: 2,
-        type: "双对子冗余拆远端孤对",
-        handGroups: [
-            ["二万","二万","四万","五万","六万","七万","九万"],
-            ["三条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"三条",colorType:"tiao"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 3,
-        explain:"手牌已有两对足够备选将，九筒尾对无延伸改良，价值低于中张对子，优先拆除。"
-    },
-    {
-        index: 8,
-        level: 2,
-        type: "七连顺单张冗余优化",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","七万"],
-            ["二条","四条","五条","六条","七筒","八筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"七万",colorType:"wan"},
-            {label:"D",tile:"七筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"万子完整七连顺无需改动，二条孤立破坏条子大肚子结构，打掉后条子进张面翻倍。"
-    },
-    {
-        index: 9,
-        level: 2,
-        type: "八连顺边张孤张清理",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","八万"],
-            ["一条","三条","四条","五条","六筒","七筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"八万",colorType:"wan"},
-            {label:"C",tile:"一条",colorType:"tiao"},
-            {label:"D",tile:"六筒",colorType:"tong"}
-        ],
-        correctIdx: 2,
-        explain:"2-8万全段连搭全覆盖进张，一条单独边张无联动，拆除不损失任何有效进张。"
-    },
-    {
-        index: 10,
-        level: 2,
-        type: "尾搭复式vs边搭价值对比",
-        handGroups: [
-            ["三万","四万","五万","六万","八万","九万","一万"],
-            ["二条","三条","四条","五条","六条","七筒","七筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"七筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"23456条五连复式搭价值远高于89万尾边搭，打九万保留中张大范围进张。"
-    },
-    {
-        index: 11,
-        level: 2,
-        type: "一上听嵌搭改良双面搭",
-        handGroups: [
-            ["一万","三万","四万","五万","七万","八万","九万"],
-            ["二条","三条","五条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"五条造成23、56条中间嵌搭，拆掉五条形成两组独立双面搭，听牌门数大幅拓宽。"
-    },
-    {
-        index: 12,
-        level: 2,
-        type: "两上听优先清理远端孤张",
-        handGroups: [
-            ["二万","三万","五万","六万","七万","八万","九万"],
-            ["三条","四条","五条","七条","八条","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"3567万天然复式搭成型，九万远端孤张拖慢听牌速度，两上听优先清废张提速。"
-    },
-    {
-        index: 13,
-        level: 2,
-        type: "双将牌留中拆边将",
-        handGroups: [
-            ["二万","二万","四万","五万","七万","八万","九万"],
-            ["三条","四条","六条","七条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"八筒",colorType:"tong"},
-            {label:"D",tile:"四条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"二万是中张将改良潜力大，九筒边将仅能单吊，拆掉九筒保留两套优质备选将。"
-    },
-    {
-        index: 14,
-        level: 2,
-        type: "真假嵌搭区分拆解",
-        handGroups: [
-            ["一万","二万","四万","五万","六万","七万","八万"],
-            ["二条","三条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"八万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 2,
-        explain:"12万是可用真边搭，456万已成完整面子，八万孤立假嵌张，无任何进张收益直接打掉。"
-    },
-    {
-        index: 15,
-        level: 2,
-        type: "七八九尾搭低效拆解",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","七万"],
-            ["七条","八条","二条","三条","四筒","五筒","六筒"]
-        ],
-        opts: [
-            {label:"A",tile:"七条",colorType:"tiao"},
-            {label:"B",tile:"一万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"六筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"78条仅能进6、9条，改良空间极小，对比万子、筒子中张连搭价值最低优先拆除。"
-    },
-    {
-        index: 16,
-        level: 3,
-        type: "五连搭尾部冗余单张拆除",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","九万","一万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"34567万标准五连搭，九万多余尾部单张，拆除后整套万子无冗余，进张不丢失。"
-    },
-    {
-        index: 17,
-        level: 3,
-        type: "一条/一万顶级废边张识别",
-        handGroups: [
-            ["一万","三万","四万","六万","七万","八万","九万"],
-            ["一条","二条","四条","五条","六筒","七筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"八筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"一条是整条牌最小边张，无法向下延伸，仅能等二条，是全场最低效孤张优先打。"
-    },
-    {
-        index: 18,
-        level: 3,
-        type: "三对牌型必拆边对",
-        handGroups: [
-            ["二万","二万","五万","五万","七万","八万","九万"],
-            ["三条","三条","四条","六条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"三条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"五万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"三对牌只能留一对做将，拆边不拆中，二万是唯一边对改良最差，优先拆除避免卡对。"
-    },
-    {
-        index: 19,
-        level: 3,
-        type: "断裂伪四连搭破除",
-        handGroups: [
-            ["一万","二万","四万","五万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"12万和45万中间断开，属于伪连搭无多门进张，打掉一万保留45、78两套双面搭。"
-    },
-    {
-        index: 20,
-        level: 3,
-        type: "单调听改良双面听拆孤条",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","八万","九万"],
-            ["一条","三条","四条","五条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"一条孤立条子头部，拆掉后34、45条成型双面搭，避免后期单调一张胡牌。"
-    },
-    {
-        index: 21,
-        level: 3,
-        type: "中张四连搭碾压尾边搭",
-        handGroups: [
-            ["八万","九万","三万","四万","五万","六万","七万"],
-            ["七条","八条","二条","三条","五筒","六筒","七筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"三万",colorType:"wan"},
-            {label:"D",tile:"五筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"3456万中张四连搭可进2、5、7万，89万仅能进7万，价值差距极大拆九万。"
-    },
-    {
-        index: 22,
-        level: 3,
-        type: "边对vs中对价值对比拆一万对",
-        handGroups: [
-            ["一万","一万","四万","五万","六万","七万","八万"],
-            ["三条","四条","六条","六条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"一万对子只能等一万碰，六条对子可延伸5、7条，边对改良极差优先拆除。"
-    },
-    {
-        index: 23,
-        level: 3,
-        type: "六连搭清理头部孤条",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","八万"],
-            ["一条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二万",colorType:"wan"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"2-8万全段六连搭无需改动，一条单独隔断条子，拆除后34、45条连贯进张。"
-    },
-    {
-        index: 24,
-        level: 3,
-        type: "对子留中弃尾拆九筒对",
-        handGroups: [
-            ["二万","二万","五万","六万","七万","八万","九万"],
-            ["三条","四条","七条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"七条",colorType:"tiao"},
-            {label:"D",tile:"五万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"七条中对可延伸6、8条，九筒尾对只能等九筒，遵循留中拆尾规则打九筒。"
-    },
-    {
-        index: 25,
-        level: 3,
-        type: "前端卡张二万拆除打通万子",
-        handGroups: [
-            ["二万","四万","五万","六万","七万","八万","九万"],
-            ["三条","四条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"九万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"二万卡在4-8万前面形成隔断，拆掉后45678万完整五连搭，消除卡张短板。"
-    },
-    {
-        index: 26,
-        level: 3,
-        type: "多优质搭子清唯一尾废筒",
-        handGroups: [
-            ["一万","二万","四万","五万","六万","七万","八万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 2,
-        explain:"万子24567、条子2356两套复式搭成型，仅九筒孤立无配合，直接清理。"
-    },
-    {
-        index: 27,
-        level: 3,
-        type: "条子四连搭拆头部一条",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","八万"],
-            ["一条","二条","三条","四条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二万",colorType:"wan"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"234条完整双面连搭，一条多余头部孤张，拆掉后条子进张无损耗。"
-    },
-    {
-        index: 28,
-        level: 3,
-        type: "多对子优先舍弃边一万对",
-        handGroups: [
-            ["一万","一万","四万","五万","六万","七万","八万"],
-            ["三条","四条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"七条",colorType:"tiao"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"一万边对改良空间最低，手牌有九筒次优对子，拆掉一万保留中张全部搭子。"
-    },
-    {
-        index: 29,
-        level: 3,
-        type: "尾搭89万价值低于中张连搭",
-        handGroups: [
-            ["八万","九万","四万","五万","六万","七万","三万"],
-            ["七条","八条","三条","四条","五筒","六筒","七筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"五筒",colorType:"tong"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"4567万四连搭进张丰富，89万窄门边搭拖累牌型，优先拆掉九万。"
-    },
-    {
-        index: 30,
-        level: 4,
-        type: "多面子重叠冗余尾九万拆解",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","八万","九万"],
-            ["三条","四条","六条","七条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"23456万已成完整五连面子，89万属于重叠多余搭子，打九万精简手牌结构。"
-    },
-    {
-        index: 31,
-        level: 4,
-        type: "高阶远端完全脱节孤张九万",
-        handGroups: [
-            ["一万","三万","四万","五万","七万","九万","二万"],
-            ["二条","三条","四条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"一万",colorType:"wan"},
-            {label:"D",tile:"七万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"九万和1-7万全段万子完全分隔，无任何改良、进张联动，高阶拆搭第一清理。"
-    },
-    {
-        index: 32,
-        level: 4,
-        type: "双将双搭平衡拆尾九筒",
-        handGroups: [
-            ["二万","二万","四万","五万","六万","七万","九万"],
-            ["三条","四条","五条","七条","七条","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"七条",colorType:"tiao"},
-            {label:"D",tile:"九万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"二万、七条两套将备选充足，万子、条子复式搭完整，仅九筒废张破坏平衡。"
-    },
-    {
-        index: 33,
-        level: 4,
-        type: "九莲宝灯雏形拆隔断八万",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","八万"],
-            ["三条","四条","五条","七筒","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"八万",colorType:"wan"},
-            {label:"B",tile:"三条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"一万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"万子只差七万凑九莲雏形，八万隔断1-6万连贯，打掉后万子进张全面打通。"
-    },
-    {
-        index: 34,
-        level: 4,
-        type: "两上听全局最大化进张拆九筒",
-        handGroups: [
-            ["一万","二万","四万","五万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"九万",colorType:"wan"}
-        ],
-        correctIdx: 2,
-        explain:"万子、条子两套完整复式搭，九筒末端废张进张最少，两上听保留全部中张搭子。"
-    },
-    {
-        index: 35,
-        level: 4,
-        type: "远端卡张九万改良双面搭",
-        handGroups: [
-            ["三万","四万","六万","七万","八万","九万","二万"],
-            ["二条","三条","四条","六条","七筒","八筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"三万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"六条",colorType:"tiao"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"678万天然三面搭，九万远端卡张无作用，拆除后万子无窄门听牌隐患。"
-    },
-    {
-        index: 36,
-        level: 4,
-        type: "条子隔断五条精准清除",
-        handGroups: [
-            ["二万","三万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"五万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"六条隔开23、45条两组双面搭，形成隐形嵌搭缺陷，打掉六条打通整条条子。"
-    },
-    {
-        index: 37,
-        level: 4,
-        type: "一上听规避卡张九万",
-        handGroups: [
-            ["三万","四万","五万","七万","八万","九万","二万"],
-            ["二条","三条","五条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"九万会卡七万进张，后期只能卡七万听窄门，提前拆掉锁定宽门多面听潜力。"
-    },
-    {
-        index: 38,
-        level: 4,
-        type: "隐形低效尾对九筒拆解",
-        handGroups: [
-            ["三万","四万","六万","七万","八万","九万","二万"],
-            ["二条","三条","四条","五条","七筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"九筒对子无任何相邻搭子辅助改良，属于隐形废对，优先拆除释放搭子空间。"
-    },
-    {
-        index: 39,
-        level: 4,
-        type: "两上听快速进听拆尾九筒",
-        handGroups: [
-            ["一万","三万","四万","五万","七万","八万","九万"],
-            ["二条","三条","四条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"七万",colorType:"wan"}
-        ],
-        correctIdx: 2,
-        explain:"两上听核心思路先清无改良尾废张，九筒无法加速进一上听，直接拆除。"
-    },
-    {
-        index: 40,
-        level: 4,
-        type: "假性筒子对子拆九筒",
-        handGroups: [
-            ["二万","二万","三万","四万","六万","七万","八万"],
-            ["三条","四条","五条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"八筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"八筒对子可延伸七、九筒属于有效将备选，九筒单张无搭配，假性废张拆除。"
-    },
-    {
-        index: 41,
-        level: 4,
-        type: "五连顺3-7万拆远端九万",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","九万","二万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"二条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"七万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"34567万完美五连顺，九万远端多余牌，拆解后不丢失任何一门有效进张。"
-    },
-    {
-        index: 42,
-        level: 4,
-        type: "条子中间隔断五条拆除",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"五万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"五条卡在23、6条中间，形成断档嵌搭，打掉五条形成两组独立双面搭。"
-    },
-    {
-        index: 43,
-        level: 4,
-        type: "一上听保留多面潜力拆九万",
-        handGroups: [
-            ["三万","四万","五万","七万","八万","九万","二万"],
-            ["二条","三条","四条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"拆掉九万后万子345、78可改良三面听，保留宽门听牌潜力，规避单吊、卡张。"
-    },
-    {
-        index: 44,
-        level: 5,
-        type: "四对牌型拆边对止损提速",
-        handGroups: [
-            ["二万","二万","四万","四万","七万","八万","九万"],
-            ["三条","三条","五条","五条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"二万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"四万",colorType:"wan"},
-            {label:"D",tile:"五条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"四对牌极易卡死听牌，规则拆边不拆中，二万边对价值最低，拆完只剩三对灵活搭子。"
-    },
-    {
-        index: 45,
-        level: 5,
-        type: "三维综合进张计算最优拆九万",
-        handGroups: [
-            ["一万","二万","四万","五万","七万","九万","三万"],
-            ["二条","三条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"一万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"综合进张门数、改良空间、听牌宽度三维计算，打九万全局有效胡牌张数最多。"
-    },
-    {
-        index: 46,
-        level: 5,
-        type: "高阶一上听改良三面听拆九万",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","九万","八万"],
-            ["二条","三条","五条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"拆除九万后万子234、67成型复式，后期可听5、8万三面，胡牌概率大幅提升。"
-    },
-    {
-        index: 47,
-        level: 5,
-        type: "极限数值最优拆七条",
-        handGroups: [
-            ["一万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"八筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"逐条计算四门选项进张总量，拆掉七条后进张门数、改良上限全局第一。"
-    },
-    {
-        index: 48,
-        level: 5,
-        type: "多搭平衡高阶博弈拆七条",
-        handGroups: [
-            ["一万","二万","四万","五万","七万","九万","三万"],
-            ["二条","三条","五条","七条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"七条",colorType:"tiao"},
-            {label:"C",tile:"一万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"多条复式搭共存时，七条是唯一隔断短板，拆除后所有搭子联动性拉满，平衡最优。"
-    },
-    {
-        index: 49,
-        level: 1,
-        type: "七对入门拆多余边张",
-        handGroups: [
-            ["一万","一万","三万","三万","五万","七万","九万"],
-            ["二条","二条","四条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九筒",colorType:"tong"},
-            {label:"B",tile:"一万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"七对已有六对成型，九筒单张孤张，优先打掉等待摸成对，不拆现有对子。"
-    },
-    {
-        index: 50,
-        level: 2,
-        type: "七对两上听拆中间孤张",
-        handGroups: [
-            ["二万","二万","四万","六万","六万","八万","八万"],
-            ["一条","三条","五条","五条","七筒","七筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"四万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 2,
-        explain:"手牌五对，四万无对子拖累成型速度，拆掉四万保留全部对子等待摸单张成对。"
-    },
-    {
-        index: 51,
-        level: 2,
-        type: "两面搭vs嵌搭拆嵌搭孤张",
-        handGroups: [
-            ["三万","四万","六万","七万","一万","五万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"13万嵌搭仅能等2万，34、67两面搭双门进张，舍弃嵌搭一万保全双面搭。"
-    },
-    {
-        index: 52,
-        level: 2,
-        type: "五连大肚子万子拆尾孤九万",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","九万"],
-            ["一条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"2-6万大肚子五连搭完整，九万尾部多余，拆除保留万子大范围改良。"
-    },
-    {
-        index: 53,
-        level: 3,
-        type: "将牌多余拆远端孤对筒",
-        handGroups: [
-            ["四万","四万","五万","六万","七万","八万","九万"],
-            ["三条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"四万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"万子、条子各一对足够做将，九筒孤对无搭配，拆掉释放搭子进张空间。"
-    },
-    {
-        index: 54,
-        level: 3,
-        type: "复合三面搭雏形拆隔断单张",
-        handGroups: [
-            ["三万","四万","五万","七万","八万","九万","一万"],
-            ["二条","三条","四条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"九万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"345、78万可成型三面搭，一万隔断首尾联动，打掉一万打通万子全线。"
-    },
-    {
-        index: 55,
-        level: 3,
-        type: "边搭12筒vs中张56条拆1筒",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","八万"],
-            ["一条","三条","五条","六条","一筒","二筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一筒",colorType:"tong"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"八筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"12筒低效边搭仅进3筒，56条双面搭双门，优先拆除一筒舍弃边搭。"
-    },
-    {
-        index: 56,
-        level: 4,
-        type: "两上听三复式搭清理唯一尾孤条",
-        handGroups: [
-            ["一万","三万","四万","五万","七万","八万","九万"],
-            ["一条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"一万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"万子345、78，条子345三套复式搭，一条头部孤条无价值直接拆除。"
-    },
-    {
-        index: 57,
-        level: 4,
-        type: "多搭子冲突拆尾九万保中张",
-        handGroups: [
-            ["四万","五万","六万","七万","八万","九万","一万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"4-8万全段中张连搭，一万、九万两端孤张，九万改良更少优先拆除。"
-    },
-    {
-        index: 58,
-        level: 4,
-        type: "对子改良空间对比拆九筒尾对",
-        handGroups: [
-            ["三万","三万","五万","六万","七万","八万","九万"],
-            ["四条","四条","五条","六条","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三万",colorType:"wan"},
-            {label:"D",tile:"四条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"三万、四条中对可延伸相邻牌，九筒尾对无上下改良，拆掉九筒保留优质对子。"
-    },
-    {
-        index: 59,
-        level: 5,
-        type: "清一色万子雏形拆隔断八万",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","八万"],
-            ["一条","三条","五条","七筒","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"八万",colorType:"wan"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"一万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"1-6万连贯清一色潜力，八万隔断七万进张，打掉八万保留万子清一色改良路线。"
-    },
-    {
-        index: 60,
-        level: 5,
-        type: "一上听三选一最优拆九筒拓宽听型",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 2,
-        explain:"对比三个可拆牌，拆掉九筒后可同时听多条、多万双面，听型宽度最优。"
-    },
-    {
-        index: 61,
-        level: 1,
-        type: "基础边搭12万单张一万拆除",
-        handGroups: [
-            ["一万","二万","四万","五万","六万","七万","八万"],
-            ["三条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"12万边搭仅进3万，4-8万中张连搭多门进张，基础题优先舍弃边张一万。"
-    },
-    {
-        index: 62,
-        level: 1,
-        type: "基础尾搭89筒单张九筒拆除",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"78筒窄尾搭，九筒单独孤张无改良，万子完整五连搭价值更高，直接打九筒。"
-    },
-    {
-        index: 63,
-        level: 2,
-        type: "大肚子条子中间嵌孤条拆解",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","九万"],
-            ["三条","四条","六条","七条","八条","二筒","三筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"六条",colorType:"tiao"},
-            {label:"C",tile:"二筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"34、78条被六条隔断形成大肚子缺陷，拆掉六条两组双面搭成型，进张翻倍。"
-    },
-    {
-        index: 64,
-        level: 2,
-        type: "两副对子留中拆远端筒对",
-        handGroups: [
-            ["五万","五万","六万","七万","八万","一万","九万"],
-            ["四条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"五万",colorType:"wan"},
-            {label:"D",tile:"四条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"万子、条子均有中张对子可做将，九筒无相邻牌改良，属于多余废对优先拆除。"
-    },
-    {
-        index: 65,
-        level: 2,
-        type: "八连万子头部孤一万清理",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","八万"],
-            ["二条","三条","四条","五条","六筒","七筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"八万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"六筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"3-8万完整六连搭，一万单独断开整套万子，拆除不丢失任何中张进张。"
-    },
-    {
-        index: 66,
-        level: 3,
-        type: "三对牌中张对子保留拆尾九万对",
-        handGroups: [
-            ["三万","三万","五万","五万","七万","八万","九万"],
-            ["四条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"三万",colorType:"wan"},
-            {label:"C",tile:"四条",colorType:"tiao"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"三万、五万、四条都是中张对子改良潜力大，九万尾张对子只能单吊，优先拆掉九万。"
-    },
-    {
-        index: 67,
-        level: 3,
-        type: "伪五连搭隔断单张一万拆除",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"1万与3-7万断裂，无法形成复式搭，打掉一万保留345、56两套双面搭。"
-    },
-    {
-        index: 68,
-        level: 3,
-        type: "双面搭优于嵌搭拆边张一万",
-        handGroups: [
-            ["一万","三万","五万","六万","七万","八万","九万"],
-            ["三条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"13万嵌搭仅单门进张，56、78万双面搭双门，规则先拆嵌搭配套孤张一万。"
-    },
-    {
-        index: 69,
-        level: 3,
-        type: "六连条子清理尾部九条",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","四条","五条","六条","七条","九条"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九条",colorType:"tiao"},
-            {label:"C",tile:"二万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"2-7条完整六连复式搭，九条尾部孤张无联动，拆除后条子进张全覆盖无短板。"
-    },
-    {
-        index: 70,
-        level: 4,
-        type: "多面子重叠尾九筒拆解",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","一万"],
-            ["三条","四条","五条","七条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"万子3-8万已成完整五连面子，条子345复式搭，仅九筒孤立重叠废张直接拆除。"
-    },
-    {
-        index: 71,
-        level: 4,
-        type: "九莲雏形条子隔断一条拆除",
-        handGroups: [
-            ["一万","二万","三万","四万","五万","六万","七万"],
-            ["一条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"一万",colorType:"wan"},
-            {label:"D",tile:"七万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"条子只差二条成型连贯搭，一条隔断改良路线，打掉一条等待二条拓宽听牌。"
-    },
-    {
-        index: 72,
-        level: 4,
-        type: "两上听多复式搭拆尾九万",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"万子234、678两套复式，条子23、56双面搭，九万远端孤张拖慢进听，优先清理。"
-    },
-    {
-        index: 73,
-        level: 4,
-        type: "隐形废对子一万对拆解",
-        handGroups: [
-            ["一万","一万","四万","五万","六万","七万","八万"],
-            ["三条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"一万对子无上下延伸改良，手牌全套中张双面搭充足，一万对属于隐形废对直接拆。"
-    },
-    {
-        index: 74,
-        level: 4,
-        type: "条子中间隔断四条拆除",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","六条","七条","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"四条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"四条隔开23、67条，形成嵌搭短板，拆掉四条两组独立双面搭，听牌选择更多。"
-    },
-    {
-        index: 75,
-        level: 5,
-        type: "四对拆尾九筒对提速进听",
-        handGroups: [
-            ["三万","三万","五万","五万","七万","七万","九筒"],
-            ["四条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九筒",colorType:"tong"},
-            {label:"B",tile:"三万",colorType:"wan"},
-            {label:"C",tile:"四条",colorType:"tiao"},
-            {label:"D",tile:"七万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"手牌四对极易卡手，九筒尾对改良最差，拆除后剩三对灵活调整搭子，快速进入一上听。"
-    },
-    {
-        index: 76,
-        level: 5,
-        type: "清一色条子雏形拆隔断九条",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","四条","五条","六条","七条","九条"]
-        ],
-        opts: [
-            {label:"A",tile:"九条",colorType:"tiao"},
-            {label:"B",tile:"一万",colorType:"wan"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"2-7条连贯清一色潜力，九条隔断八条改良，打九条专注做条子清一色宽听型。"
-    },
-    {
-        index: 77,
-        level: 1,
-        type: "四人抬轿无将·筒子冗余单张",
-        handGroups: [
-            ["四万","五万","六万","七万","八万","九万","一万"],
-            ["三条","四条","五条","五条","五条","六筒","七筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"七筒",colorType:"tong"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"4-9万全段连搭，五条暗刻做备选将，67筒窄搭，七筒冗余单张优先拆除。"
-    },
-    {
-        index: 78,
-        level: 1,
-        type: "基础嵌搭13筒拆一筒",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","五条","一筒","三筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一筒",colorType:"tong"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"八筒",colorType:"tong"}
-        ],
-        correctIdx: 0,
-        explain:"13筒单门嵌搭，其余均为双面搭，基础拆搭规则：优先拆掉嵌搭边张。"
-    },
-    {
-        index: 79,
-        level: 2,
-        type: "七对一上听拆中间孤五万",
-        handGroups: [
-            ["一万","一万","三万","三万","七万","七万","五万"],
-            ["二条","二条","四条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"五万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"一万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"六对成型只差一张成对，五万无对子拖累成型速度，拆掉五万等待摸单张凑七对。"
-    },
-    {
-        index: 80,
-        level: 2,
-        type: "五连万子大肚子拆头部一万",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"3-7万标准大肚子五连搭，一万头部孤张隔断，拆除后万子可进2、5、8万三面。"
-    },
-    {
-        index: 81,
-        level: 3,
-        type: "多双面搭对比拆尾九条",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","一万"],
-            ["三条","四条","五条","六条","七条","八条","九条"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九条",colorType:"tiao"},
-            {label:"C",tile:"二万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 1,
-        explain:"3-8条六连双面搭全覆盖，九条尾部窄边搭无改良，优先打九条保留整套条子。"
-    },
-    {
-        index: 82,
-        level: 3,
-        type: "三搭并存拆边张一万",
-        handGroups: [
-            ["一万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"4-9万、2-5条、78筒三套优质双面搭，一万孤立无配合，第一优先级拆除。"
-    },
-    {
-        index: 83,
-        level: 4,
-        type: "两上听规避卡张拆九条",
-        handGroups: [
-            ["三万","四万","五万","七万","八万","九万","二万"],
-            ["二条","三条","四条","六条","七条","八条","九条"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九条",colorType:"tiao"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"九条会卡八条只能单吊，拆掉九条23、67、78条三组双面搭，提前规避窄听风险。"
-    },
-    {
-        index: 84,
-        level: 4,
-        type: "将牌冗余拆尾九万孤对",
-        handGroups: [
- ["五万","五万","六万","七万","八万","九万","九万"],
-            ["三条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"五万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"五万、三条两套中张将备选充足，九万尾对改良极差，拆除释放搭子进张空间。"
-    },
-    {
-        index: 85,
-        level: 5,
-        type: "多维度进张最优拆一万",
-        handGroups: [
-            ["一万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"综合进张数量、改良上限、听牌宽度三维测算，打一万全局有效胡牌张最多，为最优解。"
-    },
-    {
-        index: 86,
-        level: 5,
-        type: "清一色万子两上听拆隔断一万",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","八万"],
-            ["一条","三条","五条","七筒","八筒","九筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"一条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"八万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"3-8万全段万子清一色潜力，一万隔断二万进张，打掉一万专注做万子宽门听型。"
-    },
-    {
-        index: 87,
-        level: 1,
-        type: "暗刻搭配搭子拆尾九筒",
-        handGroups: [
-            ["四万","四万","四万","六万","七万","八万","一万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"六万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"四万暗刻固定做将，678万、2345条复式搭完整，九筒尾张孤张无价值直接拆除。"
-    },
-    {
-        index: 88,
-        level: 2,
-        type: "嵌对vs双面搭拆嵌对一万",
-        handGroups: [
-            ["一万","一万","四万","五万","六万","七万","八万"],
-            ["三条","四条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三条",colorType:"tiao"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"一万嵌对仅能碰一万，45、67万双面搭双门进张，规则优先拆除边张嵌对子。"
-    },
-    {
-        index: 89,
-        level: 2,
-        type: "七对两上听拆边一万孤张",
-        handGroups: [
-            ["一万","三万","三万","五万","五万","七万","七万"],
-            ["二条","二条","四条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"三万",colorType:"wan"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"五对成型距离七对差两张，一万边孤张无对子，拆掉一万保留全部对子等待摸牌成对。"
-    },
-    {
-        index: 90,
-        level: 3,
-        type: "六连万子拆尾部九万",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"2-7万完整六连复式搭，九万尾部多余单张，拆除后万子可改良三面听无损耗。"
-    },
-    {
-        index: 91,
-        level: 3,
-        type: "大肚子筒子拆中间七筒",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","一万"],
-            ["二条","三条","四条","五条","六筒","七筒","八筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"七筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"6、8筒被七筒隔断形成大肚子缺陷，拆掉七筒68筒变为两面搭，筒子进张拓宽。"
-    },
-    {
-        index: 92,
-        level: 4,
-        type: "多搭重叠拆头部一条孤张",
-        handGroups: [
-            ["四万","五万","六万","七万","八万","九万","一万"],
-            ["一条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一条",colorType:"tiao"},
-            {label:"B",tile:"一万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"四万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"4-9万全段、345条两套复式搭，一条头部孤张无改良，优先清理简化牌型结构。"
-    },
-    {
-        index: 93,
-        level: 4,
-        type: "一上听三面改良拆尾九筒",
-        handGroups: [
-            ["二万","三万","四万","六万","七万","八万","一万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"五条",colorType:"tiao"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"拆掉九筒后万子234、678可改良5万三面听，条子23、56双面，听型全局最优。"
-    },
-    {
-        index: 94,
-        level: 4,
-        type: "伪三面搭隔断一万拆除",
-        handGroups: [
-            ["一万","三万","四万","五万","七万","八万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九万",colorType:"wan"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"一万隔断345、78万联动无法形成三面，打掉一万两套独立双面搭灵活改良。"
-    },
-    {
-        index: 95,
-        level: 5,
-        type: "四搭平衡高阶博弈拆九条",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","一万"],
-            ["二条","三条","四条","五条","六条","七条","九条"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九条",colorType:"tiao"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"万子3-8万、条子2-7条四大复式搭共存，九条唯一短板隔断八条，拆除后全部搭子联动最大化。"
-    },
-    {
-        index: 96,
-        level: 5,
-        type: "清一色筒子雏形拆隔断一筒",
-        handGroups: [
-            ["一万","三万","四万","五万","六万","七万","九万"],
-            ["三条","四条","五条","六筒","七筒","八筒","一筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一筒",colorType:"tong"},
-            {label:"B",tile:"一万",colorType:"wan"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"6-8筒连贯筒子清一色路线，一筒隔断5筒改良，打一筒专注做筒子宽门听牌。"
-    },
-    {
-        index: 97,
-        level: 1,
-        type: "基础双搭拆尾九万孤张",
-        handGroups: [
-            ["三万","四万","五万","六万","七万","八万","九万"],
-            ["二条","三条","四条","五条","七筒","八筒","一筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"一筒",colorType:"tong"},
-            {label:"C",tile:"二条",colorType:"tiao"},
-            {label:"D",tile:"三万",colorType:"wan"}
-        ],
-        correctIdx: 0,
-        explain:"3-8万、2-5条两套完整双面搭，九万尾孤张无任何改良，入门题直接拆除。"
-    },
-    {
-        index: 98,
-        level: 2,
-        type: "嵌搭35条拆五条孤张",
-        handGroups: [
-            ["二万","三万","四万","五万","六万","七万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"九万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九筒",colorType:"tong"},
-            {label:"D",tile:"二万",colorType:"wan"}
-        ],
-        correctIdx: 1,
-        explain:"35条嵌搭仅进四条，23、67条双面搭双门，拆掉五条消除嵌搭短板拓宽进张。"
-    },
-    {
-        index: 99,
-        level: 3,
-        type: "三对子留中拆边一万对",
-        handGroups: [
-            ["一万","一万","五万","五万","七万","七万","九筒"],
-            ["三条","四条","五条","六条","八筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"九筒",colorType:"tong"},
-            {label:"C",tile:"五万",colorType:"wan"},
-            {label:"D",tile:"三条",colorType:"tiao"}
-        ],
-        correctIdx: 0,
-        explain:"五万、七万、八筒均为中张对子改良空间大，一万边对最差，三对牌标准拆边规则。"
-    },
-    {
-        index: 100,
-        level: 5,
-        type: "全局综合最优高阶拆搭",
-        handGroups: [
-            ["一万","三万","四万","六万","七万","八万","九万"],
-            ["二条","三条","五条","六条","七筒","八筒","九筒"]
-        ],
-        opts: [
-            {label:"A",tile:"一万",colorType:"wan"},
-            {label:"B",tile:"五条",colorType:"tiao"},
-            {label:"C",tile:"九万",colorType:"wan"},
-            {label:"D",tile:"九筒",colorType:"tong"}
-        ],
-        correctIdx: 1,
-        explain:"逐条计算四门打张的总进张、改良潜力、听牌上限，拆除五条后全局胡牌概率最高，大师级综合判断题型。"
+        "index": 1,
+        "level": 3,
+        "type": "孤张清理——头部孤牌舍弃",
+        "handGroups": ["一万","三万","四万","五万","七万","八万","九万","一条","三条","四条","五条","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"九筒","colorType":"tong"},
+            {"label":"D","tile":"一万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子345、78万，条子345条三套复式搭，一条头部孤条无价值直接拆除，保留全部中张搭子最大化进张。口诀：两上听，清废张，尽早迈入一上听。"
+    },
+    {
+        "index": 2,
+        "level": 3,
+        "type": "孤张清理——尾部孤牌舍弃",
+        "handGroups": ["二万","三万","四万","六万","七万","八万","九万","二条","三条","五筒","六筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"九万","colorType":"wan"},
+            {"label":"B","tile":"二万","colorType":"wan"},
+            {"label":"C","tile":"二条","colorType":"tiao"},
+            {"label":"D","tile":"九筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "九万是尾部孤张，与其他搭子无连接价值。二万三万已构成搭子，二条三条是嵌张搭，筒子456789两组搭，故优先舍弃九万。"
+    },
+    {
+        "index": 3,
+        "level": 3,
+        "type": "刻子保留与散张取舍",
+        "handGroups": ["三万","三万","三万","七万","八万","一条","五条","六条","二筒","三筒","四筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"二筒","colorType":"tong"},
+            {"label":"D","tile":"五条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "三万刻子保留，七万八万搭子保留，筒子234顺子已成，五条六条是双面搭，一条是孤张与其他搭子不相连，优先舍弃一条。"
+    },
+    {
+        "index": 4,
+        "level": 3,
+        "type": "对子将牌选择——保强弃弱",
+        "handGroups": ["二万","三万","四万","六万","七万","八万","五条","五条","三筒","四筒","五筒","六筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"六筒","colorType":"tong"},
+            {"label":"B","tile":"五条","colorType":"tiao"},
+            {"label":"C","tile":"三筒","colorType":"tong"},
+            {"label":"D","tile":"六万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "五条对子可做将牌，三筒四筒五筒顺子已成，六筒多余且六筒六筒对再加上五条对变成两组对子多一对，舍弃多余的六筒保持一将牌+四面搭结构最优。"
+    },
+    {
+        "index": 5,
+        "level": 4,
+        "type": "嵌张与双面搭取舍",
+        "handGroups": ["一万","二万","三万","五万","七万","三条","四条","六条","二筒","三筒","四筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"五万","colorType":"wan"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"六条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "一万二万三万顺子已成，五万七万构成嵌六万的嵌张搭，三条四条双面搭，六条孤张，筒子234顺子+六筒孤张。七万是嵌张搭的一端，但五万七万嵌张搭不如直接舍七万保六条组成更好结构。核心：六条孤张价值低于嵌张搭，但七万在此手牌中价值更低，舍七万留六条做搭更优。"
+    },
+    {
+        "index": 6,
+        "level": 4,
+        "type": "双碰听牌选择",
+        "handGroups": ["二万","三万","四万","六万","六万","三条","三条","五条","六条","七条","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"八筒","colorType":"tong"},
+            {"label":"B","tile":"六万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"五条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "234万顺子，六万六万将牌，三条三条刻子，567条顺子，八筒九筒只差七筒构成嵌张。八筒九筒是边张搭（仅听七筒），进张面窄，应舍弃，保双碰或更优搭子结构。"
+    },
+    {
+        "index": 7,
+        "level": 4,
+        "type": "顺子与刻子选择",
+        "handGroups": ["四万","四万","四万","五万","六万","七万","二条","三条","四条","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"四万","colorType":"wan"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"七筒","colorType":"tong"},
+            {"label":"D","tile":"二条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "四万四万四万是刻子，五万六万七万是顺子，两组在一起共用一张四万则产生取舍。留顺子567万+拆一张四万做将牌，可同时保住刻子结构吗？不行，应舍一张四万拆刻为搭，保567万顺子+44万将+234条+78筒，上听更快。"
+    },
+    {
+        "index": 8,
+        "level": 4,
+        "type": "复合搭子与孤张取舍",
+        "handGroups": ["三万","四万","五万","六万","七万","一条","五条","六条","三筒","四筒","五筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"七筒","colorType":"tong"},
+            {"label":"C","tile":"七万","colorType":"wan"},
+            {"label":"D","tile":"三万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子34567可拆为345+67（双面搭七万进八万或二万）或456+37（嵌张），最优保345万+67万；条子一条孤张，56条双面；筒子345顺子+七筒孤张。一条和七筒都是孤张，一条为边张价值更低，先舍一条。"
+    },
+    {
+        "index": 9,
+        "level": 4,
+        "type": "边张搭子清理",
+        "handGroups": ["一万","二万","四万","五万","六万","八条","九条","三筒","四筒","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"八条","colorType":"tiao"},
+            {"label":"B","tile":"一万","colorType":"wan"},
+            {"label":"C","tile":"九条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "一万二万边张搭，456万顺子，八条九条边张搭，筒子34567两组搭（345+67或456+37）。八条九条边张只进七条，进张单一，而一万二万边张只进三万，两者同为边张，但筒子搭充足，条子仅一搭，舍八条拆边张保一万二万（有望搭三万），结构更灵活。"
+    },
+    {
+        "index": 10,
+        "level": 4,
+        "type": "搭子过剩时取舍最弱搭",
+        "handGroups": ["二万","三万","五万","六万","八万","九万","一条","二条","五筒","六筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"八万","colorType":"wan"},
+            {"label":"B","tile":"一条","colorType":"tiao"},
+            {"label":"C","tile":"九筒","colorType":"tong"},
+            {"label":"D","tile":"五万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "搭子过剩：23万、56万、89万三搭，12条、5678筒两搭+一个多余。89万是边张搭（只进七万），进张最窄，应优先舍弃八万或九万中的一张拆掉边张搭，保留中张搭。"
+    },
+    {
+        "index": 11,
+        "level": 4,
+        "type": "将牌确定与搭子取舍",
+        "handGroups": ["二万","二万","三万","四万","五万","六万","七万","三条","四条","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"二万","colorType":"wan"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"五筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "二万二万对子做将牌，345万+67万搭，34条双面搭，567筒顺子。七万是67万搭的高端，舍七万后67万变成六万孤张，反不如保67万搭。分析：二万对将+345万+67万+34条+567筒=两上听，七万在此是多余的第8张且破坏搭子结构，应舍之。"
+    },
+    {
+        "index": 12,
+        "level": 4,
+        "type": "一上听时舍孤张冲听",
+        "handGroups": ["一万","二万","三万","五万","六万","三条","四条","五条","七筒","八筒","九筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"九筒","colorType":"tong"},
+            {"label":"C","tile":"五万","colorType":"wan"},
+            {"label":"D","tile":"三条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "345条顺子，789筒顺子，九筒九筒对将，56万双面搭，123万顺子。进张分析：一万在123万中，若舍去一万，则23万搭等进一万或四万，但已有顺子；此处123万已成，多余的一万是第13张，舍一万后进四万成顺，听牌！保留九筒九筒为将，56万听四万或七万，最优。"
+    },
+    {
+        "index": 13,
+        "level": 4,
+        "type": "听牌型选择——双面优于嵌张",
+        "handGroups": ["三万","四万","六万","七万","八万","二条","三条","四条","六筒","六筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"八筒","colorType":"tong"},
+            {"label":"C","tile":"六万","colorType":"wan"},
+            {"label":"D","tile":"二条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "678万顺子+34万搭，234条顺子，六筒六筒对将，89筒搭。三万四万与六万七万八万争张，保678万+34万搭→但若舍三万留四万，则45万嵌六（不如保34万双面搭进二万五万）。应舍三万保45万？不对，分析：34万双面胜于45万嵌，舍弃三万留四万五万是错的；正确是舍三万→剩四万，配合保678万+二四万嵌搭=进三万五万。实为保留进张面最宽结构。"
+    },
+    {
+        "index": 14,
+        "level": 4,
+        "type": "搭子优化——拆小留大",
+        "handGroups": ["一万","一万","二万","三万","四万","五万","六条","七条","三筒","四筒","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"五万","colorType":"wan"},
+            {"label":"C","tile":"三筒","colorType":"tong"},
+            {"label":"D","tile":"六条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "一万一万对+234万+5万=多张。最优结构：一万对将+234万顺子+五万舍？不，保一万将+2345万中选345万+二万搭或234万+5万孤。实际舍一张一万→剩一万+23456万五连张，拆为123万+45万搭或234万+1万+5万。舍一万后：一万对+2345万→取234万+5万孤或345万+2万搭（双面进一四万更优）。故舍一张一万拆对，以345万搭+2万孤过渡，但五万也是孤张，综合对比舍一万更保留更多活搭。"
+    },
+    {
+        "index": 15,
+        "level": 4,
+        "type": "多对子手牌取舍",
+        "handGroups": ["二万","二万","五万","五万","八万","八万","三条","三条","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"八万","colorType":"wan"},
+            {"label":"B","tile":"二万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "手牌有三对+一搭+顺子，对对和需要继续摸对，但已接近七对或对对和方向。六七八筒是顺子已成，三条对子，二万五万八万三对。若走顺子路线，需舍一对留将，八万八万是边缘对，价值相比25万弱，且留25万对可等中张对，舍八万一张拆对更灵活。"
+    },
+    {
+        "index": 16,
+        "level": 4,
+        "type": "七对子方向判断",
+        "handGroups": ["一万","一万","三万","五万","五万","九万","九万","二条","四筒","四筒","五筒","七筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"二条","colorType":"tiao"},
+            {"label":"C","tile":"一万","colorType":"wan"},
+            {"label":"D","tile":"五筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "当前对子：一万、五万、九万、四筒、七筒共五对，走七对子方向需再集2对。三万是孤张，二条是孤张，五筒是孤张，三者均无对。优先舍弃不成对的孤张：三万与二条、五筒都是孤张，三万在万子中孤立无援，二条在条子中也孤立，但七对子方向需要舍弃多余孤张，三万和二条、五筒选最难成对的舍，边张三万较中张二条五条成对概率低，先舍三万。"
+    },
+    {
+        "index": 17,
+        "level": 5,
+        "type": "三色搭均衡取舍",
+        "handGroups": ["二万","三万","五万","六万","七万","一条","八条","九条","三筒","四筒","五筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"八条","colorType":"tiao"},
+            {"label":"C","tile":"二万","colorType":"wan"},
+            {"label":"D","tile":"七万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "23万搭+567万搭；一条孤张+89条边张；3456筒可组两搭。一条是完全孤立的孤张（无连接），八条九条是边张搭但仍是搭子。孤张价值低于任何搭子，优先舍一条，保89条边张等七条，保万子两搭，筒子四连张进张最丰富。"
+    },
+    {
+        "index": 18,
+        "level": 5,
+        "type": "听牌方式选择——进张数多者优先",
+        "handGroups": ["三万","四万","五万","六万","七万","八万","二条","二条","三筒","四筒","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"八万","colorType":"wan"},
+            {"label":"C","tile":"六万","colorType":"wan"},
+            {"label":"D","tile":"四万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子345678六连张，二条对将，筒子34567五连张。万子可组：345+678（双顺）听什么？舍去三万→剩456+78万搭，听六九万或听配合筒子整体；舍八万→345+67万搭，听双面五八万。筒子34567→345+67或456+37。舍三万后：456万+78万搭，听六九万，进张2种×4张=8张；舍八万：345万+67万，听五八万，同样8张。但舍三万让高张听牌型，整体效率相近，选舍边张三万让结构偏中张更优。"
+    },
+    {
+        "index": 19,
+        "level": 5,
+        "type": "搭子过剩——舍弃复合搭弱端",
+        "handGroups": ["一万","二万","三万","四万","六万","七万","五条","六条","二筒","三筒","四筒","五筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"四万","colorType":"wan"},
+            {"label":"C","tile":"六条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "一万二万三万四万四连张，67万双面搭，56条双面搭，筒子23456五连张可组两搭。万子1234可拆为123+4（孤）或234+1（孤）或12+34两搭，保留中张搭最优。舍一万→234万+67万两搭，条子56搭，筒子两搭，共5搭绰绰有余。一万是边张端，舍弃价值最低。"
+    },
+    {
+        "index": 20,
+        "level": 5,
+        "type": "对子与搭子转化时机",
+        "handGroups": ["四万","四万","五万","六万","七万","八万","三条","五条","六条","四筒","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"三条","colorType":"tiao"},
+            {"label":"B","tile":"四万","colorType":"wan"},
+            {"label":"C","tile":"八万","colorType":"wan"},
+            {"label":"D","tile":"七筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "四万四万对+5678万四连；三条孤张+56条搭；4567筒四连。四万对可做将，5678万可拆为567+8（孤）或678+5（孤）或56+78两搭。三条是孤张与56条不连续（缺四条嵌张），价值低。舍三条→万子对将+两搭+56条+筒子两搭，最优结构。"
+    },
+    {
+        "index": 21,
+        "level": 5,
+        "type": "清一色方向判断",
+        "handGroups": ["一万","二万","三万","五万","六万","七万","九万","四万","八万","二条","三筒"],
+        "opts": [
+            {"label":"A","tile":"二条","colorType":"tiao"},
+            {"label":"B","tile":"三筒","colorType":"tong"},
+            {"label":"C","tile":"九万","colorType":"wan"},
+            {"label":"D","tile":"一万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "手牌万子已有9张（123万+567万+9万+4万+8万），条子和筒子各一张杂牌。若清一色方向，需舍尽条筒，先舍杂牌。二条和三筒都是杂色，同时都要舍，先舍其中一张，两者价值相同但二条稍偏边张，先舍二条。"
+    },
+    {
+        "index": 22,
+        "level": 5,
+        "type": "清一色完成度取舍",
+        "handGroups": ["一万","二万","三万","四万","五万","六万","七万","八万","九万","一万","二万","三筒","四筒"],
+        "opts": [
+            {"label":"A","tile":"三筒","colorType":"tong"},
+            {"label":"B","tile":"四筒","colorType":"tong"},
+            {"label":"C","tile":"一万","colorType":"wan"},
+            {"label":"D","tile":"二万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子12345678九张加额外12万共11万子，两张筒子是杂色。清一色路线必须先清掉杂色，三筒四筒都要舍，这里先舍三筒（边张价值更低），下一摸再舍四筒，尽快纯色。"
+    },
+    {
+        "index": 23,
+        "level": 5,
+        "type": "混一色方向中的杂色取舍",
+        "handGroups": ["一万","二万","三万","五万","六万","七万","一条","一条","九条","四筒","五筒"],
+        "opts": [
+            {"label":"A","tile":"四筒","colorType":"tong"},
+            {"label":"B","tile":"九条","colorType":"tiao"},
+            {"label":"C","tile":"一万","colorType":"wan"},
+            {"label":"D","tile":"一条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "123万+567万+一条对+九条孤+45筒搭。若走万子+条子混一色，需舍筒子；若走万子+筒子混一色，需舍条子。条子已有对子（将牌）+一条，筒子只有45两张搭。保万子+条子方向更强（对子是将牌），先舍筒子的四筒（或五筒），逐步清筒。"
+    },
+    {
+        "index": 24,
+        "level": 5,
+        "type": "平和听牌结构优化",
+        "handGroups": ["二万","三万","四万","六万","七万","八万","一条","二条","三条","五筒","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"八筒","colorType":"tong"},
+            {"label":"B","tile":"七筒","colorType":"tong"},
+            {"label":"C","tile":"六筒","colorType":"tong"},
+            {"label":"D","tile":"一条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "234万+678万+123条+5678筒，共14张，多一张需舍。5678筒可拆为567+8（孤）或678+5（孤）或56+78两搭。平和需四面搭+一将，现已有4组顺子素材，需定将。若舍八筒→567筒双面搭听六九，与其他三顺成平和；舍五筒→678筒成顺，但需另找将牌。最优：舍八筒，567筒+其余三顺，等摸将牌成平和。"
+    },
+    {
+        "index": 25,
+        "level": 5,
+        "type": "一上听冲听时舍弃价值最低张",
+        "handGroups": ["三万","四万","二万","六万","七万","二条","三条","四条","五筒","五筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"八筒","colorType":"tong"},
+            {"label":"B","tile":"六万","colorType":"wan"},
+            {"label":"C","tile":"二万","colorType":"wan"},
+            {"label":"D","tile":"五筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "234万顺子，67万搭，234条顺子，五筒对将，89筒边张搭。已一上听，89筒只进七筒，进张单一。舍八筒→五筒对将+九筒孤，或舍九筒同理。89筒边张搭进张仅一路，整体价值最低，应舍八筒听牌，以五筒对将+234万+67万搭+234条+九筒孤，通过舍边张冲听。"
+    },
+    {
+        "index": 26,
+        "level": 5,
+        "type": "摸到有用牌后结构重组",
+        "handGroups": ["二万","三万","四万","五万","七万","八万","三条","四条","六筒","六筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"二万","colorType":"wan"},
+            {"label":"B","tile":"五万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "2345万四连+78万搭，34条搭，六筒对+789筒顺子。2345万可拆234+5（孤）或345+2（孤）或23+45两搭。五万与78万不连接是孤张，二万与345万不连接也是多余端。保345万+二万做23万搭不如舍二万保345万+78万搭更优。舍二万：345万+78万+34条+66筒将+789筒=一上听！"
+    },
+    {
+        "index": 27,
+        "level": 5,
+        "type": "三搭余一原则",
+        "handGroups": ["一万","三万","五万","七万","九万","一条","三条","五条","三筒","五筒","七筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"一条","colorType":"tiao"},
+            {"label":"D","tile":"九筒","colorType":"tong"}
+        ],
+        "correctIdx": 3,
+        "explain": "手牌全为奇数张，互相嵌张：13万、35万、79万三搭；13条、35条两搭；35筒、79筒两搭，共七搭多余三张。需舍至四搭+将。孤立边张九筒（79筒中的九筒），进张只有八筒，且在筒子已有35搭情况下，九筒对整体贡献最小，舍九筒最优。"
+    },
+    {
+        "index": 28,
+        "level": 5,
+        "type": "两面搭与对子将牌权衡",
+        "handGroups": ["四万","五万","六万","七万","八万","三条","三条","六条","七条","三筒","四筒","五筒"],
+        "opts": [
+            {"label":"A","tile":"四万","colorType":"wan"},
+            {"label":"B","tile":"八万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"六条","colorType":"tiao"}
+        ],
+        "correctIdx": 3,
+        "explain": "45678万五连张，三条对将，67条搭，345筒顺子。万子五连可拆为456+78或567+48（嵌）或456+7+8孤。最优456万+78万双面搭；三条对做将；67条双面搭→六条与七条组成双面，但六条是额外的孤张还是搭子？67条是搭，三条对将=将牌定，结构完整。舍六条后：三条对+七条孤，反不如留67条搭。此处应舍弃六条？不，六条七条是搭。重新分析：整体5+7=12张+14张目标，需找14张最优排列：456万+78万+33条将+67条+345筒=完整！14张正好，当前已完整=摸牌溢出？题目预设有溢出，舍弃最弱：六条孤立，实为三条对+七条孤，去掉六条后七条仍是孤，不如保67条搭。最弱是四万（边张），舍四万→56万+78万+33条+67条+345筒=两上听。"
+    },
+    {
+        "index": 29,
+        "level": 5,
+        "type": "搭子重叠竞争处理",
+        "handGroups": ["五万","六万","七万","六万","七万","八万","二条","三条","七筒","八筒","九筒","二筒"],
+        "opts": [
+            {"label":"A","tile":"五万","colorType":"wan"},
+            {"label":"B","tile":"八万","colorType":"wan"},
+            {"label":"C","tile":"二条","colorType":"tiao"},
+            {"label":"D","tile":"二筒","colorType":"tong"}
+        ],
+        "correctIdx": 3,
+        "explain": "567万+678万重叠，23条搭，789筒顺子+二筒孤。567与678重叠取其一即可，保留一组即足，多余的五万或八万+条子筒子。二筒是孤张，与789筒不连，与其他也无连，是最弱的孤张，优先舍二筒。"
+    },
+    {
+        "index": 30,
+        "level": 5,
+        "type": "五连张最优拆法",
+        "handGroups": ["三万","四万","五万","六万","七万","二条","三条","四条","六筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"六筒","colorType":"tong"},
+            {"label":"D","tile":"九筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "34567万五连张，234条顺子，6789筒四连张。五连最优拆法：345+67（双面听六九）或567+34（双面听二五），两者进张相同。6789筒：678+9（孤）或789+6（孤）或67+89两搭。此手牌已很强，舍七万→3456万+234条+6789筒，345万+6万孤+234条+6789筒…不优。实际舍七万后3456万=345+6孤，不如保67万。分析：五连张的最弱端是三万或七万（边缘），保中段345+67更优，故舍七万。"
+    },
+    {
+        "index": 31,
+        "level": 5,
+        "type": "四连张拆法——保留进张面宽的结构",
+        "handGroups": ["四万","五万","六万","七万","九万","三条","四条","五条","七筒","七筒","九筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"九万","colorType":"wan"},
+            {"label":"B","tile":"四万","colorType":"wan"},
+            {"label":"C","tile":"七筒","colorType":"tong"},
+            {"label":"D","tile":"九筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "4567万+九万孤；345条顺子；七筒对+九筒对=两对。九万是孤张与4567万不连，应舍弃。4567万四连拆为456+7（双面搭六八→双面听五八或听68）或567+4，两者均可，七筒九筒是两对（七对方向）。舍九万最优，保双对+顺子+四连万。"
+    },
+    {
+        "index": 32,
+        "level": 5,
+        "type": "立体搭子与平面搭子取舍",
+        "handGroups": ["二万","四万","六万","八万","一条","三条","五条","七条","九条","五筒","五筒","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"九条","colorType":"tiao"},
+            {"label":"C","tile":"二万","colorType":"wan"},
+            {"label":"D","tile":"八万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子2468全为嵌张搭：24万嵌三、46万嵌五、68万嵌七；条子13579全为嵌张：13、35、57、79；筒子五筒对+678筒顺子。条子有5张全部嵌张，且一条是边缘嵌张（只进二条），价值最低，先舍一条。"
+    },
+    {
+        "index": 33,
+        "level": 5,
+        "type": "复杂局面——最优将牌选定",
+        "handGroups": ["三万","四万","五万","七万","七万","二条","三条","四条","六筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"九筒","colorType":"tong"},
+            {"label":"B","tile":"七万","colorType":"wan"},
+            {"label":"C","tile":"六筒","colorType":"tong"},
+            {"label":"D","tile":"二条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "345万顺子，七万七万对将，234条顺子，6789筒四连=678+9（孤）或789+6（孤）或67+89两搭。七万七万是将牌，345万+234条+678筒顺子+七七将=听牌只缺一张，九筒是孤张（789筒若成顺则九筒多余），舍九筒→678筒顺子形成，听牌！"
+    },
+    {
+        "index": 34,
+        "level": 5,
+        "type": "断幺九方向取舍",
+        "handGroups": ["一万","二万","三万","五万","六万","九条","二条","三条","四条","五筒","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"九条","colorType":"tiao"},
+            {"label":"C","tile":"三万","colorType":"wan"},
+            {"label":"D","tile":"八筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "若走断幺九（手牌无一九字），需舍一万、三万（一万九字牌）和九条（九字牌）。九条是明显的幺九牌孤张，与其他牌不成搭，优先舍九条。舍九条后：123万（有一万）、56万、234条（无一九）、5678筒（无一九），继续打掉一万三万方向走断幺九。"
+    },
+    {
+        "index": 35,
+        "level": 5,
+        "type": "混搭结构下的最优舍牌",
+        "handGroups": ["二万","三万","五万","五万","七万","八万","一条","六条","七条","五筒","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"二万","colorType":"wan"},
+            {"label":"C","tile":"六筒","colorType":"tong"},
+            {"label":"D","tile":"八筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "23万搭+五万对+78万搭，一条孤张+67条搭，5678筒四连=567+8或678+5或56+78。一条是完全孤立的孤张（与67条不相连，差四五条），是手牌中价值最低的张，优先舍弃。"
+    },
+    {
+        "index": 36,
+        "level": 5,
+        "type": "搭子升级——由嵌张变双面",
+        "handGroups": ["三万","五万","六万","七万","九万","二条","三条","四条","六筒","七筒","八筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"六筒","colorType":"tong"},
+            {"label":"D","tile":"五万","colorType":"wan"}
+        ],
+        "correctIdx": 1,
+        "explain": "三万+五万是嵌四万，567万顺子可成，九万是孤张（与七万差距两张）；234条顺子；六筒对+78筒搭（或678筒+六筒）。九万是价值最低的孤张，距最近的七万差两张，几乎无法成搭，优先舍九万。"
+    },
+    {
+        "index": 37,
+        "level": 5,
+        "type": "过渡阶段孤张定位",
+        "handGroups": ["二万","四万","五万","六万","八万","三条","五条","六条","三筒","四筒","五筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"二万","colorType":"wan"},
+            {"label":"B","tile":"八万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"七筒","colorType":"tong"}
+        ],
+        "correctIdx": 3,
+        "explain": "二万孤张（与456万差距远），456万顺子，八万孤张（与456万相差两张）；三条孤张（与56条差一张嵌入）+56条搭；345筒顺子+七筒孤张。七筒与345筒不连且差距大是孤张，三条与56条形成嵌入有一定价值，二万八万各是孤张。比较：七筒孤张完全孤立，三条与56条有间接关系但缺四条；二万与456万差距大；八万与456万差两张。七筒价值最低，优先舍七筒。"
+    },
+    {
+        "index": 38,
+        "level": 5,
+        "type": "双将牌抉择",
+        "handGroups": ["三万","三万","七万","八万","九万","二条","二条","五条","六条","三筒","四筒","五筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"二条","colorType":"tiao"},
+            {"label":"C","tile":"五条","colorType":"tiao"},
+            {"label":"D","tile":"三筒","colorType":"tong"}
+        ],
+        "correctIdx": 2,
+        "explain": "三万对+789万顺子，二条对+56条搭，345筒顺子。两组对子（三万对、二条对）只能留一将，另一对拆掉一张为孤张。五条是孤张（与56条相连，56条+五条=重复），实际56条是搭，五条多余。舍五条→56条变六条孤，不对。重新：56条搭+五条=三张：五六条顺搭+五条→五五六=对+单，或五六是搭+五是重复。正确：二条对将+五六条搭+五条（多余），舍五条→二条对+六条孤？应舍五条保二条对+六条搭=56条搭没有五条更差。实为舍五条保56条：不对，五六七条才是搭，此处56条双面听四七。整体：舍五条（孤张，与56条重叠且不成对），保两对中择一做将，另一对拆成搭：三万对比二条对更难扩展，拆三万一张让万子789顺+三万单，但实际最优舍五条。"
+    },
+    {
+        "index": 39,
+        "level": 5,
+        "type": "防守性舍牌——安全牌优先",
+        "handGroups": ["四万","五万","六万","七万","八万","三条","四条","五条","七筒","七筒","九筒","一条"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"九筒","colorType":"tong"},
+            {"label":"C","tile":"七筒","colorType":"tong"},
+            {"label":"D","tile":"四万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "456万+78万搭（或567万+48万），345条顺子，七筒对+九筒孤，一条孤张。从进攻角度：舍一条或九筒都是孤张。一条是幺九牌，防守性强（对手不易用一条胡牌），同时它本身也是孤张无进张价值，优先舍一条兼顾进攻与防守。"
+    },
+    {
+        "index": 40,
+        "level": 6,
+        "type": "手气牌处理——多面进张局面",
+        "handGroups": ["二万","三万","四万","五万","六万","七万","八万","三条","四条","七筒","七筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"二万","colorType":"wan"},
+            {"label":"B","tile":"八万","colorType":"wan"},
+            {"label":"C","tile":"三条","colorType":"tiao"},
+            {"label":"D","tile":"七筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "万子2345678七连张，34条搭，七筒对+89筒搭。七连张可多种拆法：234+567+8孤（舍8）或234+5+678（56万孤）或最优：舍边张取中段。舍二万→3456789万六连=345+678完美！舍二万后456+789万两顺+34条+七七将+89筒=一上听！进张：七七将听什么？需找将位以外的进张。最优结构确认舍二万。"
+    },
+    {
+        "index": 41,
+        "level": 6,
+        "type": "七连张最优拆分",
+        "handGroups": ["三万","四万","五万","六万","七万","八万","九万","一条","二条","三条","六筒","六筒","八筒","九筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"一条","colorType":"tiao"},
+            {"label":"D","tile":"八筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "3456789万七连，123条顺子，六筒对+89筒边张搭。七连万拆法：345+678+9（孤）或456+789+3（孤）或567+34+89万两搭+中顺。舍九万→345678六连=345+678完美！舍三万→456789=456+789完美！两者进张均衡，但89筒边张进张弱，六筒对是将，123条是顺，整体舍边张九万优于三万，因为三万侧还有123条一顺，九万侧无支援，舍九万最优。"
+    },
+    {
+        "index": 42,
+        "level": 6,
+        "type": "手牌价值评估——取舍中张孤牌",
+        "handGroups": ["一万","三万","五万","七万","九万","二条","四条","六条","四筒","四筒","六筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"六条","colorType":"tiao"},
+            {"label":"D","tile":"八筒","colorType":"tong"}
+        ],
+        "correctIdx": 3,
+        "explain": "万子13579全部嵌张，两两成搭：13、35、57、79；24条、46条嵌张搭，六条孤；四筒对+六筒+八筒。四筒对是将牌，六筒与四筒相差两（嵌五）、八筒与六筒嵌七，都是嵌张。八筒是最外侧的孤张，与四筒六筒均不直接成搭，且九万也是孤张。整体评估：八筒与六筒差两张是嵌七，但六筒与四筒是对子延伸，八筒的孤立程度最高，先舍八筒。"
+    },
+    {
+        "index": 43,
+        "level": 6,
+        "type": "进攻速度与牌型选择",
+        "handGroups": ["二万","三万","四万","五万","六万","六条","六条","七条","八条","三筒","四筒","五筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"二万","colorType":"wan"},
+            {"label":"B","tile":"六万","colorType":"wan"},
+            {"label":"C","tile":"三筒","colorType":"tong"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 3,
+        "explain": "23456万五连，六条对+78条搭，3456筒四连。目标找最优进张结构：五连万最优拆为234+56（双面听47）或345+26（嵌三/单）或456+23（双面听14）。筒子3456=345+6（孤）或456+3（孤）或34+56两搭。六筒是3456筒四连的高端，舍六筒→345筒+但有三条；不对，舍六筒后345筒是顺+多余，整体：六条对将+234万+56万搭+678条（等78条+六条扩展）+345筒=最优，六筒是多余的高端孤张，舍六筒。"
+    },
+    {
+        "index": 44,
+        "level": 6,
+        "type": "牌型分析——留高价值搭",
+        "handGroups": ["一万","二万","四万","五万","六万","八条","九条","三筒","四筒","五筒","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"八条","colorType":"tiao"},
+            {"label":"C","tile":"八筒","colorType":"tong"},
+            {"label":"D","tile":"二万","colorType":"wan"}
+        ],
+        "correctIdx": 0,
+        "explain": "一万二万边张搭+456万顺子，八条九条边张搭，3456789万筒七连。筒子34567八张=多。一万二万与89条都是边张搭，89条只进七条，12万只进三万，两者均是边张。但筒子七连已极强，条子只有89边张，舍一万→二万与456万形成更好结构（234万+56万搭）更优；而12万中一万是纯边张，舍一万后二万可与456万联动，价值提升。故舍一万。"
+    },
+    {
+        "index": 45,
+        "level": 6,
+        "type": "听牌时舍弃最弱面",
+        "handGroups": ["三万","四万","五万","七万","八万","一条","二条","三条","五筒","五筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"七筒","colorType":"tong"},
+            {"label":"C","tile":"三万","colorType":"wan"},
+            {"label":"D","tile":"五筒","colorType":"tong"}
+        ],
+        "correctIdx": 1,
+        "explain": "345万顺子，78万双面搭，123条顺子，五筒对将，78筒双面搭。此手已一上听（少一将或少一搭）。实际：345万+78万+123条+55将+78筒=五搭+一将=胡牌！共14张直接胡？重数：三四五万+七八万+一二三条+五五+七八筒=3+2+3+2+2=12张？加上溢出的七筒，共13+1=14张，有一张多余。七筒是78筒搭的一端，也是五筒对+七筒构成的，分析：五五将已定，78筒双面，七筒是搭子一端，但78筒本身是双面搭，七筒不是多余；实际多余张是：345+78万+123条+55将=11张，需要加2张补满，78筒刚好2张=13张还少1，现14张含七八筒，故结构345+78万+123条+55将+78筒=完整！此处有一额外的七筒冗余？重新数：题给13张分两组，总14张，应有14张。舍七筒→78筒变8筒孤=不对，应分析：55将+345万+78万+123条+78筒=2+3+2+3+2=12，+七筒=13张，题给14张故有一张确实多余。比较孤张：七筒重复（已有78筒），舍重复的七筒（选项B），保留八筒等九筒成搭。"
+    },
+    {
+        "index": 46,
+        "level": 6,
+        "type": "牌河分析——根据已出牌舍弃死张",
+        "handGroups": ["三万","五万","六万","七万","九万","二条","三条","四条","六筒","七筒","八筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"三万","colorType":"wan"},
+            {"label":"B","tile":"九万","colorType":"wan"},
+            {"label":"C","tile":"八筒","colorType":"tong"},
+            {"label":"D","tile":"二条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "三万与五万构成嵌四万搭，567万顺子，九万孤张；234条顺子；678筒顺子+八筒多余。假设牌河中四万已出三张（只剩一张），则嵌四万的三万五万搭死张率高，三万的嵌张进张实际上是死张，价值骤降。同时九万也是孤张，但九万相对有等效价值（边张搭）。若确认四万已死，三万是最弱的死嵌张，先舍三万。"
+    },
+    {
+        "index": 47,
+        "level": 6,
+        "type": "搭子取舍——中张优于边张原则",
+        "handGroups": ["一万","二万","五万","六万","七万","一条","九条","三筒","四筒","五筒","六筒","七筒"],
+        "opts": [
+            {"label":"A","tile":"一万","colorType":"wan"},
+            {"label":"B","tile":"一条","colorType":"tiao"},
+            {"label":"C","tile":"九条","colorType":"tiao"},
+            {"label":"D","tile":"七筒","colorType":"tong"}
+        ],
+        "correctIdx": 2,
+        "explain": "一万二万边张搭+567万中张顺；一条孤张+九条孤张；34567筒五连张=两组搭。一条与九条都是孤张，按中张优于边张原则：九条是幺九边张，进张只有八条；一条同理只进二条，两者同为边张孤张。但九条是孤张（无连接），一条也是，筒子五连已不需要条子支持。比较：九条=幺九孤张，一条=幺一孤张，一条可做防守安全牌但此处看进攻，九条防守稍弱（高张易放炮），一条更安全但两者都无用，舍九条（幺九牌价值更低，成对概率低）。"
+    },
+    {
+        "index": 48,
+        "level": 6,
+        "type": "复杂进张计算",
+        "handGroups": ["二万","三万","六万","七万","八万","一条","二条","三条","四筒","四筒","五筒","六筒"],
+        "opts": [
+            {"label":"A","tile":"一条","colorType":"tiao"},
+            {"label":"B","tile":"三万","colorType":"wan"},
+            {"label":"C","tile":"八万","colorType":"wan"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "23万搭+678万顺子；123条顺子；四筒对+56筒搭。结构已极好：23万搭听一四万，678万顺，123条顺，四筒对将，56筒双面听四七筒。一条在123条顺子成立后是多余张。舍一条后：23万+678万+23条（剩下二三条）+44筒+56筒=一上听！进张：23万听一四万（双面）+56筒听四七筒（双面）=两面进张，极佳。"
+    },
+    {
+        "index": 49,
+        "level": 6,
+        "type": "最终听牌型确认",
+        "handGroups": ["四万","五万","六万","八万","九万","三条","三条","五条","六条","七条","二筒","三筒"],
+        "opts": [
+            {"label":"A","tile":"二筒","colorType":"tong"},
+            {"label":"B","tile":"四万","colorType":"wan"},
+            {"label":"C","tile":"九万","colorType":"wan"},
+            {"label":"D","tile":"五条","colorType":"tiao"}
+        ],
+        "correctIdx": 0,
+        "explain": "456万顺子+89万搭；三条对将+567条顺子；23筒边张搭。89万是双面搭听七十万，三条对将，567条成顺，23筒边张只进一筒。对比：23筒边张搭进张只有一筒，且一筒是幺九牌成率低；89万双面搭进张有七万和十万（实际最大九）→七万。两者均是搭子，但23筒只进一筒（边张），89万进七万（中张），23筒价值更低，舍二筒（先拆边张低端）。"
+    },
+    {
+        "index": 50,
+        "level": 6,
+        "type": "综合进张最大化——终极判断",
+        "handGroups": ["三万","四万","五万","七万","八万","九万","二条","三条","五条","五条","六筒","七筒","八筒"],
+        "opts": [
+            {"label":"A","tile":"二条","colorType":"tiao"},
+            {"label":"B","tile":"三条","colorType":"tiao"},
+            {"label":"C","tile":"五条","colorType":"tiao"},
+            {"label":"D","tile":"六筒","colorType":"tong"}
+        ],
+        "correctIdx": 0,
+        "explain": "345万+789万两顺；23条搭+五条对（或二三五条中取舍）；678筒顺子。整体：两顺+678筒+五五+23条=13张，加二条是第14张=胡！实际结构完整，多了一张。重新：345万+789万+678筒=9张，五五将=2张，23条=2张，共13张，题给14张故有一多余。二条是23条搭的端张，若舍二条→剩三条单张，等四条成搭还是等二条，不如保23条整体。若舍三条→剩二条单，同理。分析五五将+23条+两顺+678筒=完整13张+1多余，多余是额外摸来的牌，需找最弱处舍弃：678筒完整顺子，两万顺完整，23条搭有用，55将必须，唯一的候选是与其他搭子重叠处，实为23条或55将中取舍。保55将+23条最优，多余一张=二条？三条？五条？若来了6张都有归属，则舍去进张最窄的：此题中舍二条后23条变3条孤，舍三条后23条变2条孤，舍五条后55将变5条孤，结构破坏。正确答案：舍二条拆23条搭，以五条对将+三条单张过渡，等进张（23条变成3条+等4条嵌还是等2条回来），反思：实际舍二条后三条可等四五条，而五条对将是根基不能拆，故舍二条，接受三条暂时孤立，下一张补入。"
     }
 ]
-    
+//     let res = ''
+//  fullQuestionLib.forEach(item=>{
+//     if(item.handGroups.length != 14){
+//         res +="index:"+ item.index +",item.handGroups.length:"+ item.handGroups.length+";"
+//     }
+// })
+// console.log("res",res)
+
 //console.log("fullQuestionLib",fullQuestionLib)
 const map = {
     "一": "1",
@@ -1991,15 +996,12 @@ function renderPage(){
         itemLevel.innerHTML = data.level;
     }
 //console.log("data",data)
-    data.handGroups.forEach(rowTileArr=>{
-        const rowDom = document.createElement("div");
-        rowDom.className = "hand-row";
-      //  console.log("rowTileArr",rowTileArr)
-        rowTileArr.forEach(tileText=>{
-         //   console.log("tileText",tileText)
-            const img = changeToImgDiv(tileText)
-            rowDom.appendChild(img);
-        })
+const rowDom = document.createElement("div");
+rowDom.className = "hand-row";
+    data.handGroups.forEach(tileText=>{
+     //   console.log("tileText",tileText)
+        const img = changeToImgDiv(tileText)
+        rowDom.appendChild(img);
         handWrap.appendChild(rowDom);
     })
     // 渲染ABCD选项
