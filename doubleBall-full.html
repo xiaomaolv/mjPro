@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双色球选号器（三合一完整版）</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            max-width: 950px;
+            margin: 30px auto;
+            padding: 0 20px;
+            background-color: #f5f7fa;
+        }
+        .card {
+            background: #fff;
+            padding:24px;
+            border-radius:12px;
+            box-shadow: 0 2px 12px #00000015;
+            margin-bottom:20px;
+        }
+        h2 {
+            margin-top:0;
+        }
+        .mode-box{
+            margin-bottom:16px;
+        }
+        .ball-group{
+            margin:18px 0;
+        }
+        .ball-item{
+            display:inline-block;
+            width:36px;
+            height:36px;
+            line-height:36px;
+            text-align:center;
+            border-radius:50%;
+            margin:4px;
+            cursor:pointer;
+            border:1px solid #ddd;
+        }
+        .red-ball{
+            background-color:#f44336;
+            color:#fff;
+        }
+        .blue-ball{
+            background-color:#2196F3;
+            color:#fff;
+        }
+        .exclude-red{
+            background:#ffcccc;
+            color:#990000;
+        }
+        .exclude-blue{
+            background:#cce5ff;
+            color:#004499;
+        }
+        .result-line{
+            font-size:22px;
+            margin:16px 0;
+        }
+        .extra-info{
+            margin-top:10px;
+            font-size:14px;
+            color:#444;
+        }
+        button{
+            padding:10px 18px;
+            font-size:15px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            margin-right:10px;
+            margin-bottom:8px;
+        }
+        .btn-primary{
+            background:#222;
+            color:white;
+        }
+        .btn-reset{
+            background:#888;
+            color:white;
+        }
+        .btn-special{
+            background:#6b21a8;
+            color:#fff;
+        }
+        .tip{
+            color:#666;
+            font-size:14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>双色球选号器｜三合一</h2>
+        <div class="mode-box">
+            <label>
+                <input type="radio" name="mode" value="random" checked onchange="switchMode()"> 普通随机模式
+            </label>
+            &nbsp;&nbsp;
+            <label>
+                <input type="radio" name="mode" value="exclude" onchange="switchMode()"> 反向排除模式（勾选不要的号码）
+            </label>
+            &nbsp;&nbsp;
+            <label>
+                <input type="radio" name="mode" value="remain" onchange="switchMode()"> 抽取27红15蓝，取剩余一注
+            </label>
+        </div>
+
+        <div id="excludePanel" style="display:none;">
+            <div class="ball-group">
+                <p>红球（1-33），点击勾选【要排除的号码】：</p>
+                <div id="redExcludeWrap"></div>
+            </div>
+            <div class="ball-group">
+                <p>蓝球（1-16），点击勾选【要排除的号码】：</p>
+                <div id="blueExcludeWrap"></div>
+            </div>
+        </div>
+
+        <div class="result-line">
+            选号结果：
+            <span id="resultShow"></span>
+        </div>
+        <div class="extra-info" id="extraInfo"></div>
+
+        <div>
+            <button class="btn-primary" onclick="runGenerate()">生成号码</button>
+            <button class="btn-special" onclick="runRemainMode()">【快速】抽取27红15蓝取剩余注</button>
+            <button class="btn-reset" onclick="resetAll()">重置</button>
+        </div>
+        <p class="tip">提示：彩票开奖完全随机，本工具仅号码模拟，无法提高中奖概率，理性购彩。</p>
+    </div>
+
+
+<script>
+// 原始核心函数
+function generateDoubleBall(redBallNum=6,blueBallNum=1,excludeRed=[],excludeBlue=[]){
+    // 可用红球 = 1~33 过滤掉排除号码
+    let availableRed = []
+    for(let i=1;i<=33;i++){
+        if(!excludeRed.includes(i)) availableRed.push(i)
+    }
+    if(availableRed.length < redBallNum) throw new Error("剩余可选红球数量不足，请减少排除号码！")
+
+    let redBalls = []
+    while(redBalls.length < redBallNum){
+        let randIdx = Math.floor(Math.random() * availableRed.length)
+        let num = availableRed[randIdx]
+        if(redBalls.indexOf(num) === -1){
+            redBalls.push(num)
+        }
+    }
+
+    // 可用蓝球 =1~16过滤排除号码
+    let availableBlue = []
+    for(let i=1;i<=16;i++){
+        if(!excludeBlue.includes(i)) availableBlue.push(i)
+    }
+    if(availableBlue.length < blueBallNum) throw new Error("剩余可选蓝球数量不足，请减少排除号码！")
+
+    let blueBalls = []
+    while(blueBalls.length < blueBallNum){
+        let randIdx = Math.floor(Math.random() * availableBlue.length)
+        let num = availableBlue[randIdx]
+        if(blueBalls.indexOf(num) === -1){
+            blueBalls.push(num)
+        }
+    }
+
+    redBalls.sort((a,b)=>a-b)
+    return [redBalls, blueBalls]
+}
+
+// 存储被排除的号码
+let selectedExcludeRed = []
+let selectedExcludeBlue = []
+
+// 切换模式
+function switchMode(){
+    const mode = document.querySelector('input[name="mode"]:checked').value
+    const panel = document.getElementById('excludePanel')
+    document.getElementById('extraInfo').innerHTML = '';
+    if(mode === 'exclude'){
+        panel.style.display = 'block'
+    }else{
+        panel.style.display = 'none'
+    }
+}
+
+// 渲染排除选择面板
+function renderExcludeBoard(){
+    const redWrap = document.getElementById('redExcludeWrap')
+    const blueWrap = document.getElementById('blueExcludeWrap')
+    redWrap.innerHTML = ''
+    blueWrap.innerHTML = ''
+
+    // 红球1-33
+    for(let i=1;i<=33;i++){
+        const span = document.createElement('span')
+        span.className = 'ball-item red-ball'
+        span.innerText = i
+        span.dataset.val = i
+        if(selectedExcludeRed.includes(i)){
+            span.classList.remove('red-ball')
+            span.classList.add('exclude-red')
+        }
+        span.onclick = ()=>{
+            const val = Number(span.dataset.val)
+            const idx = selectedExcludeRed.indexOf(val)
+            if(idx > -1){
+                selectedExcludeRed.splice(idx,1)
+            }else{
+                selectedExcludeRed.push(val)
+            }
+            renderExcludeBoard()
+        }
+        redWrap.appendChild(span)
+    }
+
+    // 蓝球1-16
+    for(let i=1;i<=16;i++){
+        const span = document.createElement('span')
+        span.className = 'ball-item blue-ball'
+        span.innerText = i
+        span.dataset.val = i
+        if(selectedExcludeBlue.includes(i)){
+            span.classList.remove('blue-ball')
+            span.classList.add('exclude-blue')
+        }
+        span.onclick = ()=>{
+            const val = Number(span.dataset.val)
+            const idx = selectedExcludeBlue.indexOf(val)
+            if(idx > -1){
+                selectedExcludeBlue.splice(idx,1)
+            }else{
+                selectedExcludeBlue.push(val)
+            }
+            renderExcludeBoard()
+        }
+        blueWrap.appendChild(span)
+    }
+}
+
+// 普通/反向排除模式生成
+function runGenerate(){
+    const mode = document.querySelector('input[name="mode"]:checked').value
+    let excludeR = []
+    let excludeB = []
+    document.getElementById('extraInfo').innerHTML = '';
+    if(mode === 'exclude'){
+        excludeR = selectedExcludeRed
+        excludeB = selectedExcludeBlue
+    }
+    try{
+        const [red, blue] = generateDoubleBall(6,1,excludeR,excludeB)
+        renderResult(red,blue);
+    }catch(e){
+        alert(e.message)
+    }
+}
+
+// 27红15蓝 取剩余注
+function runRemainMode(){
+    document.querySelector('input[value="remain"]').checked = true;
+    switchMode();
+    // 随机选出27红、15蓝（被抽走的号码）
+    const [pickedRed, pickedBlue] = generateDoubleBall(27,15);
+
+    // 计算剩余红球：1~33排除pickedRed
+    let remainRed = [];
+    for(let i=1;i<=33;i++){
+        if(!pickedRed.includes(i)) remainRed.push(i);
+    }
+    remainRed.sort((a,b)=>a-b);
+
+    // 剩余蓝球：1~16排除pickedBlue
+    let remainBlue = [];
+    for(let i=1;i<=16;i++){
+        if(!pickedBlue.includes(i)) remainBlue.push(i);
+    }
+    renderResult(remainRed,remainBlue);
+    document.getElementById('extraInfo').innerHTML = `抽走27红：${pickedRed.join(" ")} <br>抽走15蓝：${pickedBlue.join(" ")}`;
+}
+
+// 渲染球结果
+function renderResult(red,blue){
+    let html = ''
+    red.forEach(n=>{
+        html += `<span class="ball-item red-ball">${n}</span>`
+    })
+    blue.forEach(n=>{
+        html += `<span class="ball-item blue-ball">${n}</span>`
+    })
+    document.getElementById('resultShow').innerHTML = html
+}
+
+// 重置全部
+function resetAll(){
+    selectedExcludeRed = []
+    selectedExcludeBlue = []
+    document.getElementById('resultShow').innerHTML = ''
+    document.getElementById('extraInfo').innerHTML = ''
+    renderExcludeBoard()
+}
+
+// 初始化
+renderExcludeBoard()
+</script>
+</body>
+</html>
